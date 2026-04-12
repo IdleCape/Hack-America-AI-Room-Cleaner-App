@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room Cleaner AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FAF7F2;
+    --warm-white: #FFFFFF;
+    --terracotta: #993C1D;
+    --terracotta-dark: #712B13;
+    --terracotta-light: #F5C4B3;
+    --terracotta-xlight: #FAECE7;
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --text-primary: #1A1410;
+    --text-secondary: #6B5E55;
+    --text-tertiary: #A89990;
+    --border: rgba(26,20,16,0.12);
+    --border-strong: rgba(26,20,16,0.22);
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem 4rem;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 660px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 2.75rem;
+  }
+  .eyebrow {
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 0.9rem;
+  }
+  .title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 0.65rem;
+  }
+  .subtitle {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 16px;
+    padding: 2.75rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--warm-white);
+    user-select: none;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--terracotta);
+    background: var(--terracotta-xlight);
+  }
+  .upload-icon-wrap {
+    width: 52px;
+    height: 52px;
+    background: var(--terracotta-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.1rem;
+  }
+  .upload-icon-wrap svg {
+    width: 24px; height: 24px;
+    stroke: var(--terracotta-dark);
+    fill: none;
+    stroke-width: 1.7;
+  }
+  .upload-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+  .upload-hint {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+  }
+  #file-input { display: none; }
+
+  /* Video preview */
+  .video-wrap {
+    display: none;
+    margin-top: 1.25rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #111;
+  }
+  #video-el {
+    width: 100%;
+    max-height: 270px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Frames strip */
+  .frames-strip {
+    display: none;
+    gap: 5px;
+    margin-top: 0.9rem;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .frames-strip img {
+    height: 54px;
+    width: auto;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    opacity: 0.75;
+    flex-shrink: 0;
+  }
+
+  /* Analyze button */
+  .analyze-btn {
+    display: none;
+    margin-top: 1.25rem;
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--terracotta);
+    color: var(--terracotta-xlight);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.025em;
+    transition: background 0.18s, transform 0.1s;
+  }
+  .analyze-btn:hover:not(:disabled) { background: var(--terracotta-dark); }
+  .analyze-btn:active:not(:disabled) { transform: scale(0.99); }
+  .analyze-btn:disabled { background: var(--text-tertiary); cursor: not-allowed; }
+
+  /* Progress */
+  .progress-wrap {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 1.4rem 1.5rem;
+    background: var(--warm-white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .steps { display: flex; flex-direction: column; gap: 0.8rem; }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+    transition: color 0.25s;
+  }
+  .step.active { color: var(--text-primary); }
+  .step.done   { color: var(--green-dark); }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    flex-shrink: 0;
+    transition: background 0.25s;
+  }
+  .step.active .dot { background: var(--terracotta); }
+  .step.done   .dot { background: var(--green); }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--terracotta-light);
+    border-top-color: var(--terracotta);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error */
+  .error-box {
+    display: none;
+    margin-top: 1.4rem;
+    padding: 1rem 1.25rem;
+    background: #FCEBEB;
+    border: 1px solid #F7C1C1;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #791F1F;
+    line-height: 1.65;
+  }
+  .error-title { font-weight: 500; margin-bottom: 0.25rem; font-size: 13.5px; }
+
+  /* Results */
+  .results-wrap { display: none; margin-top: 2rem; }
+  .results-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 1.1rem;
+    color: var(--text-primary);
+  }
+  .task-list { display: flex; flex-direction: column; gap: 0.7rem; }
+  .task-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 1rem 1.2rem;
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.38s ease, transform 0.38s ease;
+  }
+  .task-item.visible { opacity: 1; transform: translateY(0); }
+  .task-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--terracotta-xlight);
+    color: var(--terracotta-dark);
+    font-size: 11.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .task-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-primary);
+  }
+
+  .reset-btn {
+    margin-top: 1.4rem;
+    background: none;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 0.55rem 1.1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .reset-btn:hover { background: rgba(26,20,16,0.05); }
+
+  canvas { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <p class="eyebrow">AI room analysis</p>
+    <h1 class="title">Your room, refreshed.</h1>
+    <p class="subtitle">Upload a short video walkthrough and get 5 high-impact tasks to tackle first.</p>
+  </header>
+
+  <div class="upload-zone" id="upload-zone">
+    <input type="file" id="file-input" accept="video/*">
+    <div class="upload-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+    </div>
+    <p class="upload-label">Drop your room video here</p>
+    <p class="upload-hint">Or click to browse &middot; MP4, MOV, WebM supported</p>
+  </div>
+
+  <div class="video-wrap" id="video-wrap">
+    <video id="video-el" muted playsinline preload="auto" controls></video>
+  </div>
+
+  <div class="frames-strip" id="frames-strip"></div>
+
+  <button class="analyze-btn" id="analyze-btn">Analyze my room</button>
+
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="steps">
+      <div class="step" id="step-1"><div class="dot"></div><span>Extracting key frames from video</span></div>
+      <div class="step" id="step-2"><div class="dot"></div><span>Sending frames to AI for analysis</span></div>
+      <div class="step" id="step-3"><div class="dot"></div><span>Generating your action plan</span></div>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box">
+    <p class="error-title">Something went wrong</p>
+    <p id="error-msg"></p>
+  </div>
+
+  <div class="results-wrap" id="results-wrap">
+    <p class="results-heading">Your 5 cleaning priorities</p>
+    <div class="task-list" id="task-list"></div>
+    <button class="reset-btn" id="reset-btn">Analyze another room</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const uploadZone  = $('upload-zone');
+const fileInput   = $('file-input');
+const videoWrap   = $('video-wrap');
+const videoEl     = $('video-el');
+const analyzeBtn  = $('analyze-btn');
+const progressWrap= $('progress-wrap');
+const resultsWrap = $('results-wrap');
+const taskList    = $('task-list');
+const resetBtn    = $('reset-btn');
+const errorBox    = $('error-box');
+const errorMsg    = $('error-msg');
+const framesStrip = $('frames-strip');
+const canvas      = $('canvas');
+const ctx         = canvas.getContext('2d');
+
+let videoFile = null;
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('video/')) loadVideo(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadVideo(fileInput.files[0]); });
+
+function loadVideo(file) {
+  if (videoEl.src && videoEl.src.startsWith('blob:')) URL.revokeObjectURL(videoEl.src);
+  videoFile = file;
+  videoEl.src = URL.createObjectURL(file);
+  videoEl.load();
+  // Play then immediately pause — forces the browser to decode and paint frame 0.
+  // Without this, the video element stays black even with preload="auto".
+  videoEl.addEventListener('canplay', () => {
+    videoEl.play().then(() => {
+      videoEl.pause();
+      videoEl.currentTime = 0;
+    }).catch(() => {});
+  }, { once: true });
+  videoWrap.style.display = 'block';
+  analyzeBtn.style.display = 'block';
+  hideError();
+}
+
+function setStep(n, state) {
+  const el = $('step-' + n);
+  el.className = 'step ' + state;
+  const dot = el.querySelector('.dot');
+  let spinner = el.querySelector('.spinner');
+  if (state === 'active') {
+    dot.style.display = 'none';
+    if (!spinner) {
+      spinner = document.createElement('div');
+      spinner.className = 'spinner';
+      el.insertBefore(spinner, el.querySelector('span'));
+    }
+  } else {
+    if (spinner) spinner.remove();
+    dot.style.display = '';
+  }
+}
+
+function showError(msg) {
+  progressWrap.style.display = 'none';
+  analyzeBtn.style.display = 'block';
+  analyzeBtn.disabled = false;
+  errorBox.style.display = 'block';
+  errorMsg.textContent = msg;
+}
+
+function hideError() {
+  errorBox.style.display = 'none';
+  errorMsg.textContent = '';
+}
+
+// Seeks to a specific time and resolves once (guards against multiple seeked firings).
+function seekTo(video, time) {
+  return new Promise(resolve => {
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      video.removeEventListener('seeked', done);
+      resolve();
+    };
+    video.addEventListener('seeked', done);
+    video.currentTime = time;
+    setTimeout(done, 4000); // fallback: don't hang forever
+  });
+}
+
+async function extractFrames(video, count) {
+  const dur = video.duration;
+  if (!dur || !isFinite(dur) || dur <= 0)
+    throw new Error('Cannot read video duration. Try a different format — MP4 (H.264) works best.');
+
+  video.pause();
+
+  const times = Array.from({ length: count }, (_, i) => (dur / (count + 1)) * (i + 1));
+  const frames = [];
+
+  for (const time of times) {
+    await seekTo(video, time);
+    // Wait one animation frame so the browser paints the decoded frame before we capture it.
+    await new Promise(r => requestAnimationFrame(r));
+
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 360;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+    const b64 = dataUrl.split(',')[1];
+    if (b64 && b64.length > 200) {
+      frames.push(b64);
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/jpeg', 0.45);
+      framesStrip.appendChild(img);
+    }
+  }
+
+  if (frames.length === 0)
+    throw new Error('No frames extracted. The video codec may be unsupported — try converting to MP4.');
+  return frames;
+}
+
+function extractJSON(raw) {
+  const cleaned = raw.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+  const match = cleaned.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('AI response did not contain a valid task list.');
+  return JSON.parse(match[0]);
+}
+
+analyzeBtn.addEventListener('click', async () => {
+  if (!videoFile) return;
+
+  analyzeBtn.disabled = true;
+  analyzeBtn.style.display = 'none';
+  progressWrap.style.display = 'block';
+  framesStrip.innerHTML = '';
+  framesStrip.style.display = 'flex';
+  resultsWrap.style.display = 'none';
+  hideError();
+
+  setStep(1, 'active'); setStep(2, ''); setStep(3, '');
+
+  // Step 1 — extract frames
+  let frames;
+  try {
+    await new Promise((res, rej) => {
+      if (videoEl.readyState >= 3) { res(); return; }
+      videoEl.addEventListener('canplay', res, { once: true });
+      videoEl.addEventListener('error', () =>
+        rej(new Error('Video failed to load. ' + (videoEl.error ? videoEl.error.message : ''))), { once: true });
+    });
+    frames = await extractFrames(videoEl, 6);
+    setStep(1, 'done');
+  } catch (e) {
+    showError(e.message);
+    return;
+  }
+
+  // Step 2 — call API
+  setStep(2, 'active');
+  let tasks;
+  try {
+    const imageBlocks = frames.map(b64 => ({
+      type: 'image',
+      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+    }));
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            ...imageBlocks,
+            {
+              type: 'text',
+              text: "These frames are from a video walkthrough of someone's room. Study them carefully and identify the 5 highest-impact, most actionable cleaning or tidying tasks the person should do first. Each task should take under 10 minutes and make the biggest visible difference. Reply ONLY with a raw JSON array of exactly 5 strings — no markdown, no preamble, no explanation. Example format: [\"Task one\",\"Task two\",\"Task three\",\"Task four\",\"Task five\"]"
+            }
+          ]
+        }]
+      })
+    });
+
+    setStep(2, 'done');
+    setStep(3, 'active');
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const detail = errData.error?.message || `HTTP ${res.status} ${res.statusText}`;
+      throw new Error(`API error: ${detail}`);
+    }
+
+    const data = await res.json();
+    const raw = data.content.filter(c => c.type === 'text').map(c => c.text).join('');
+    tasks = extractJSON(raw);
+    if (!Array.isArray(tasks) || tasks.length === 0) throw new Error('Unexpected response format — no tasks found.');
+    setStep(3, 'done');
+  } catch (e) {
+    showError(e.message || 'AI analysis failed. Please try again.');
+    return;
+  }
+
+  // Show results
+  progressWrap.style.display = 'none';
+  resultsWrap.style.display = 'block';
+  taskList.innerHTML = '';
+  tasks.slice(0, 5).forEach((task, i) => {
+    const item = document.createElement('div');
+    item.className = 'task-item';
+    item.innerHTML = `<div class="task-num">${i + 1}</div><p class="task-text">${task}</p>`;
+    taskList.appendChild(item);
+    setTimeout(() => item.classList.add('visible'), 90 * i);
+  });
+});
+
+resetBtn.addEventListener('click', () => {
+  videoFile = null;
+  videoEl.src = '';
+  videoWrap.style.display = 'none';
+  analyzeBtn.style.display = 'none';
+  analyzeBtn.disabled = false;
+  progressWrap.style.display = 'none';
+  resultsWrap.style.display = 'none';
+  framesStrip.style.display = 'none';
+  framesStrip.innerHTML = '';
+  hideError();
+  fileInput.value = '';
+});
+</script>
+</body>
+</html>
