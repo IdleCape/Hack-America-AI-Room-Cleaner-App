@@ -1,1 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean & Decorate</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #112417; min-height: 100vh; overflow: hidden; }
 
+  /* ── NAV BAR ── */
+  #nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #0c2b18; border-bottom: 2px solid #1f5231;
+    padding: 0 16px; height: 52px;
+  }
+  #nav .app-title { font-size: 15px; font-weight: 700; color: #ffd700; }
+  #nav .nav-tabs { display: flex; gap: 4px; }
+  #nav .nav-tab {
+    padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; background: transparent; color: #8cb89d;
+    transition: all 0.2s;
+  }
+  #nav .nav-tab.active { background: #174526; color: #d1f2dd; }
+  #nav .nav-tab:hover:not(.active) { color: #d1f2dd; }
+  #nav .bells-display {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 700; color: #ffd700;
+  }
+  #nav .bells-display .bells-label { font-size: 11px; color: #8cb89d; font-weight: 400; }
+
+  /* earned bell flash */
+  .bells-earned-toast {
+    position: fixed; top: 60px; right: 16px; z-index: 200;
+    background: #1e4a2d; border: 1.5px solid #4a9e68; border-radius: 20px;
+    padding: 8px 16px; color: #a0ffcc; font-size: 13px; font-weight: 600;
+    pointer-events: none;
+    animation: toastIn 0.3s ease, toastOut 0.4s ease 2s forwards;
+  }
+  @keyframes toastIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+  @keyframes toastOut { to { opacity:0; transform: translateY(-8px); } }
+
+  /* ── SCREEN CONTAINERS ── */
+  #screen-cleaner, #screen-game {
+    position: fixed; top: 52px; left: 0; right: 0; bottom: 0;
+    display: none;
+    overflow-y: auto;
+  }
+  #screen-cleaner.visible { display: block; }
+  #screen-game.visible { display: flex; }
+
+  /* ── CLEANER STYLES ── */
+  #screen-cleaner {
+    background: #f4f7f5;
+  }
+  #cleaner-root {
+    width: 100%; max-width: 480px; margin: 0 auto; padding: 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .drop-zone {
+    border: 2px dashed #ccc; border-radius: 12px; padding: 40px 20px;
+    text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    background: #fff; margin-bottom: 16px;
+  }
+  .drop-zone.dragover { border-color: #174526; background: #e8f0eb; }
+  .drop-zone input { display: none; }
+  .btn-primary { width:100%; padding:14px; font-size:15px; font-weight:600; border-radius:12px; background:#174526; color:#fff; border:none; cursor:pointer; }
+  .btn-secondary { width:100%; padding:12px; font-size:14px; border-radius:12px; background:transparent; color:#1a1a1a; border:0.5px solid rgba(0,0,0,0.2); cursor:pointer; }
+  .back-btn { background:none; border:none; cursor:pointer; font-size:20px; color:#888; padding:0; line-height:1; }
+  .error-box { margin-bottom:12px; padding:10px 14px; background:#FCEBEB; border:0.5px solid #F09595; border-radius:8px; font-size:13px; color:#791F1F; }
+
+  /* earn bells banner in cleaner */
+  .bells-earned-banner {
+    margin-top: 12px; padding: 10px 14px;
+    background: #1e4a2d; border: 1px solid #4a9e68; border-radius: 10px;
+    font-size: 13px; color: #a0ffcc; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .go-game-btn {
+    padding: 6px 14px; background: #3d8a5f; color: #a0ffcc;
+    border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .go-game-btn:hover { background: #4d9a6f; }
+
+  /* ── GAME STYLES ── */
+  #screen-game { background: #112417; }
+  #sidebar {
+    width: 220px; min-width: 220px; background: #12331f;
+    border-right: 2px solid #1f5231; display: flex; flex-direction: column; overflow: hidden;
+  }
+  #gameArea { flex: 1; position: relative; overflow: hidden; cursor: crosshair; }
+  #gameCanvas { display: block; }
+  .panel { padding: 10px; border-bottom: 1px solid #1f5231; }
+  .panel h3 { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8cb89d; margin-bottom: 8px; }
+  .coins { display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 700; color: #ffd700; }
+  .coins span { font-size: 13px; }
+  .tabs { display: flex; border-bottom: 2px solid #1f5231; }
+  .tab { flex: 1; padding: 8px 4px; font-size: 11px; text-align: center; cursor: pointer; color: #8cb89d; border: none; background: transparent; letter-spacing: 0.5px; transition: all 0.15s; }
+  .tab.active { background: #174526; color: #d1f2dd; border-bottom: 2px solid #4ade80; margin-bottom: -2px; }
+  .item-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .item-list::-webkit-scrollbar { width: 4px; }
+  .item-list::-webkit-scrollbar-thumb { background: #1f5231; border-radius: 2px; }
+  .item-card { background: #174526; border: 1px solid #1f5231; border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .item-card:hover { background: #1d522e; border-color: #4ade80; transform: translateX(2px); }
+  .item-card.selected { background: #236338; border-color: #ffd700; box-shadow: 0 0 0 1px #ffd700; }
+  .item-card.disabled { opacity: 0.4; cursor: not-allowed; }
+  .item-emoji { font-size: 22px; width: 32px; text-align: center; }
+  .item-info { flex: 1; }
+  .item-name { font-size: 12px; font-weight: 600; color: #d1f2dd; }
+  .item-cost { font-size: 11px; color: #ffd700; }
+  .item-count { font-size: 10px; color: #8cb89d; }
+  .btn { width: 100%; padding: 8px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-top: 4px; }
+  .btn-buy { background: #236338; color: #d1f2dd; }
+  .btn-buy:hover { background: #2c7a45; }
+  .btn-place { background: #236338; color: #a0ffcc; }
+  .btn-place:hover { background: #2c7a45; }
+  .status-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(18,51,31,0.9); border: 1px solid #1f5231; border-radius: 20px; padding: 6px 16px; font-size: 12px; color: #8cb89d; pointer-events: none; white-space: nowrap; z-index: 10; }
+  .toolbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+  .tool-btn { background: rgba(18,51,31,0.9); border: 1px solid #1f5231; border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #8cb89d; cursor: pointer; transition: all 0.15s; }
+  .tool-btn:hover { border-color: #4ade80; color: #d1f2dd; }
+  .tool-btn.active { background: rgba(35,99,56,0.9); border-color: #ffd700; color: #ffd700; }
+  #earnBtn { background: rgba(45,80,40,0.9); border-color: #3d8a5f; color: #a0ffcc; }
+  #earnBtn:hover { border-color: #a0ffcc; }
+  .help { font-size: 10px; color: #608c73; text-align: center; padding: 8px; line-height: 1.6; border-top: 1px solid #1f5231; }
+
+  /* clean-to-earn hint in game sidebar */
+  .clean-hint {
+    padding: 8px 10px; font-size: 10px; color: #739c84; text-align: center;
+    border-top: 1px solid #1f5231; line-height: 1.5;
+  }
+  .clean-hint strong { color: #8cb89d; }
+</style>
+</head>
+<body>
+
+<div id="nav">
+  <div class="app-title">🏡 Clean & Decorate</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-cleaner" onclick="switchScreen('cleaner')">🧹 Clean</button>
+    <button class="nav-tab" id="tab-game" onclick="switchScreen('game')">🎮 Decorate</button>
+  </div>
+  <div class="bells-display">
+    🪙 <span id="navBells">0</span>
+    <span class="bells-label">bells</span>
+  </div>
+</div>
+
+<div id="screen-cleaner" class="visible">
+  <div id="cleaner-root"></div>
+</div>
+
+<div id="screen-game">
+  <div id="sidebar">
+    <div class="panel" style="background:#0c2b18;">
+      <div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:4px;">🏡 Cozy Corner</div>
+      <div class="coins">🪙<span id="coinDisplay">0</span> <span style="color:#8cb89d;font-size:11px;">bells</span></div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="shopTab" onclick="switchTab('shop')">🛒 Shop</button>
+      <button class="tab" id="invTab" onclick="switchTab('inv')">🎒 Bag</button>
+    </div>
+    <div class="item-list" id="itemList"></div>
+    <div class="clean-hint">
+      <strong>💡 Earn bells by cleaning!</strong><br>
+      Each step you tick off in the 🧹 Clean tab earns +10 bells to spend here.
+    </div>
+    <div class="help">
+      WASD / Arrows: Move<br>
+      Click room: Place item<br>
+      Click placed: Select<br>
+      Del / Backspace: Remove<br>
+      Escape: Cancel
+    </div>
+  </div>
+  <div id="gameArea">
+    <canvas id="gameCanvas"></canvas>
+    <div class="status-bar" id="statusBar">Buy items from the shop and decorate your room 🌿</div>
+    <div class="toolbar">
+      <button class="tool-btn active" id="gridBtn" onclick="toggleGrid()">⊞ Grid</button>
+      <button class="tool-btn" onclick="saveRoom()">💾 Save</button>
+      <button class="tool-btn" onclick="loadRoom()">📂 Load</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// SHARED BELLS STATE  — bridges the cleaner ↔ game
+// ════════════════════════════════════════════════════════════════
+const SharedBells = {
+  _bells: 0,
+  _listeners: [],
+  get() { return this._bells; },
+  add(n) {
+    this._bells += n;
+    this._listeners.forEach(fn => fn(this._bells));
+    document.getElementById('navBells').textContent = this._bells;
+    // sync to game state if game is loaded
+    if (typeof gameState !== 'undefined') {
+      gameState.coins = this._bells;
+      if (typeof renderGameUI === 'function') renderGameUI();
+    }
+    // show toast
+    showBellsToast('+' + n + ' 🪙 bells earned!');
+  },
+  set(n) {
+    this._bells = n;
+    this._listeners.forEach(fn => fn(this._bells));
+    document.getElementById('navBells').textContent = this._bells;
+  },
+  syncFromGame() {
+    // called by game when it spends coins
+    if (typeof gameState !== 'undefined') {
+      this._bells = gameState.coins;
+      document.getElementById('navBells').textContent = this._bells;
+    }
+  },
+  onUpdate(fn) { this._listeners.push(fn); }
+};
+
+function showBellsToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'bells-earned-toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SCREEN SWITCHER
+// ════════════════════════════════════════════════════════════════
+function switchScreen(name) {
+  document.getElementById('screen-cleaner').classList.toggle('visible', name === 'cleaner');
+  document.getElementById('screen-game').classList.toggle('visible', name === 'game');
+  document.getElementById('tab-cleaner').classList.toggle('active', name === 'cleaner');
+  document.getElementById('tab-game').classList.toggle('active', name === 'game');
+
+  if (name === 'game') {
+    // sync cleaner bells into game
+    if (typeof gameState !== 'undefined') {
+      gameState.coins = SharedBells.get();
+      if (typeof renderGameUI === 'function') renderGameUI();
+    }
+    // trigger resize so canvas fits
+    setTimeout(() => { if (typeof resize === 'function') resize(); }, 50);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// ROOM CLEANER (React)
+// ════════════════════════════════════════════════════════════════
+const { useState, useRef, useEffect, useCallback } = React;
+
+const API_KEY = "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";
+
+const CLUTTER_CATEGORIES = [
+  { id: "laundry",   label: "Laundry",        bg: "#B5D4F4", color: "#0C447C" },
+  { id: "trash",     label: "Trash",           bg: "#F5C4B3", color: "#712B13" },
+  { id: "surfaces",  label: "Dirty surfaces",  bg: "#FAC775", color: "#633806" },
+  { id: "misplaced", label: "Misplaced items", bg: "#9FE1CB", color: "#085041" },
+  { id: "bed",       label: "Unmade bed",      bg: "#CECBF6", color: "#3C3489" },
+  { id: "dishes",    label: "Dishes",          bg: "#F4C0D1", color: "#72243E" },
+];
+
+const SYSTEM_PROMPT = `You are a room cleaning assistant. You will receive one or more images (frames from a room video or a single photo). Analyze all images together to get a full picture of the room, then respond ONLY with a JSON object in this exact format, no other text:
+{
+  "categories": ["list of detected clutter types from: laundry, trash, surfaces, misplaced, bed, dishes"],
+  "steps": [
+    "Step 1: specific actionable instruction",
+    "Step 2: specific actionable instruction",
+    "Step 3: specific actionable instruction",
+    "Step 4: specific actionable instruction",
+    "Step 5: specific actionable instruction"
+  ],
+  "summary": "One sentence describing the overall state of the room"
+}
+Always return exactly 5 steps ordered from quickest wins to deeper cleaning. Be specific about what you see across all the frames.`;
+
+function resizeImageToBase64(dataUrl, maxSize = 768) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", 0.8).split(",")[1]);
+    };
+    img.src = dataUrl;
+  });
+}
+
+function extractFramesFromVideo(file, numFrames = 6) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.src = url; video.muted = true; video.playsInline = true;
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      const times = [];
+      for (let i = 0; i < numFrames; i++) times.push((duration / (numFrames + 1)) * (i + 1));
+      const frames = []; let idx = 0;
+      const captureNext = () => {
+        if (idx >= times.length) { URL.revokeObjectURL(url); resolve(frames); return; }
+        video.currentTime = times[idx];
+      };
+      video.onseeked = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+        frames.push(canvas.toDataURL("image/jpeg", 0.8)); idx++; captureNext();
+      };
+      video.onerror = () => reject(new Error("Could not load video"));
+      captureNext();
+    };
+    video.onerror = () => reject(new Error("Could not load video file"));
+    video.load();
+  });
+}
+
+function RoomCleaner() {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const [screen, setScreen] = useState("home");
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
+  const [completedSteps, setCompletedSteps] = useState(new Set());
+  const [error, setError] = useState(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [mode, setMode] = useState(null);
+  const [scanningMsg, setScanningMsg] = useState("Analyzing your room...");
+  const [videoFrames, setVideoFrames] = useState([]);
+  const [currentFrame, setCurrentFrame] = useState(0);
+
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+      streamRef.current = stream;
+      if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.onloadedmetadata = () => setCameraReady(true); }
+    } catch (err) { setError("Camera access denied. Use file upload instead."); }
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraReady(false); }
+  }, []);
+
+  useEffect(() => { if (mode === "camera") startCamera(); return () => stopCamera(); }, [mode]);
+
+  const analyzeImages = async (frames, previewUrl) => {
+    setCapturedImage(previewUrl); stopCamera(); setScreen("scanning"); setError(null);
+    try {
+      setScanningMsg("Resizing frames...");
+      const resized = await Promise.all(frames.map(f => resizeImageToBase64(f)));
+      setScanningMsg("Analyzing your room...");
+      const imageContent = resized.map(b64 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } }));
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 500, system: SYSTEM_PROMPT, messages: [{ role: "user", content: [...imageContent, { type: "text", text: frames.length > 1 ? `These are ${frames.length} frames extracted from a room video. Analyze them together and provide cleaning instructions.` : "Analyze this room photo and provide cleaning instructions." }] }] })
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.content?.map(b => b.text || "").join("") || "";
+      const clean = text.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      setAnalysis(parsed); setCompletedSteps(new Set()); setScreen("results");
+    } catch (err) {
+      setError("Could not analyze: " + err.message);
+      setScreen(mode === "camera" ? "camera" : "upload");
+      if (mode === "camera") startCamera();
+    }
+  };
+
+  const captureFromCamera = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current; const canvas = canvasRef.current;
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    analyzeImages([dataUrl], dataUrl);
+  };
+
+  const handleFile = async (file) => {
+    setError(null);
+    const isVideo = file.type.startsWith("video/");
+    const isImage = file.type.startsWith("image/");
+    if (!isVideo && !isImage) { setError("Please select an image or video file."); return; }
+    if (isVideo) {
+      setScreen("scanning"); setScanningMsg("Extracting frames from video...");
+      try {
+        const frames = await extractFramesFromVideo(file, 6);
+        if (frames.length === 0) throw new Error("No frames could be extracted");
+        setVideoFrames(frames); setCurrentFrame(0);
+        await analyzeImages(frames, frames[0]);
+      } catch (err) { setError("Could not process video: " + err.message); setScreen("upload"); }
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const dataUrl = e.target.result;
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement("canvas"); const MAX = 1280;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) { if (w > h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        await analyzeImages([canvas.toDataURL("image/jpeg", 0.85)], canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const toggleStep = (index) => {
+    setCompletedSteps(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+        setPoints(p => Math.max(0, p - 50));
+        // remove bells from shared pool
+        SharedBells.set(Math.max(0, SharedBells.get() - 50));
+        document.getElementById('navBells').textContent = SharedBells.get();
+      } else {
+        next.add(index);
+        setPoints(p => p + 50);
+        // ★ ADD BELLS TO SHARED POOL ★
+        SharedBells.add(50);
+        if (next.size === 5) setStreak(s => s + 1);
+      }
+      return next;
+    });
+  };
+
+  const goHome = () => {
+    stopCamera(); setCapturedImage(null); setAnalysis(null);
+    setCompletedSteps(new Set()); setError(null); setMode(null);
+    setVideoFrames([]); setCurrentFrame(0); setScreen("home");
+  };
+
+  const progress = analysis ? Math.round((completedSteps.size / 5) * 100) : 0;
+  const detectedCategories = analysis ? CLUTTER_CATEGORIES.filter(c => analysis.categories.includes(c.id)) : [];
+
+  const iconCamera = React.createElement("svg", { width:22, height:22, viewBox:"0 0 24 24", fill:"none", stroke:"white", strokeWidth:2, strokeLinecap:"round", strokeLinejoin:"round" },
+    React.createElement("path", { d:"M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" }),
+    React.createElement("circle", { cx:12, cy:13, r:4 }));
+
+  const iconUpload = (color) => React.createElement("svg", { width:22, height:22, viewBox:"0 0 24 24", fill:"none", stroke:color, strokeWidth:2, strokeLinecap:"round", strokeLinejoin:"round" },
+    React.createElement("path", { d:"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+    React.createElement("polyline", { points:"17 8 12 3 7 8" }),
+    React.createElement("line", { x1:12, y1:3, x2:12, y2:15 }));
+
+  // ── HOME ──
+  if (screen === "home") return React.createElement("div", { style:{ paddingTop:8 } },
+    React.createElement("div", { style:{ marginBottom:24 } },
+      React.createElement("h2", { style:{ fontSize:20, fontWeight:600, color:"#1a1a1a" } }, "Room Cleaner"),
+      React.createElement("p", { style:{ fontSize:13, color:"#888", marginTop:4 } }, "Scan your room — every cleaning step earns 🪙 bells to spend in the Decorate game!"),
+      SharedBells.get() > 0 && React.createElement("div", { style:{ marginTop:8, display:"inline-flex", gap:12, alignItems:"center", padding:"6px 12px", background:"#E6F1FB", borderRadius:20 } },
+        React.createElement("span", { style:{ fontSize:13, fontWeight:600, color:"#174526" } }, SharedBells.get() + " bells"),
+        streak > 0 && React.createElement("span", { style:{ fontSize:12, color:"#1d522e" } }, streak + " room" + (streak!==1?"s":"") + " cleaned")
+      )
+    ),
+    React.createElement("div", { style:{ display:"flex", flexDirection:"column", gap:12 } },
+      React.createElement("button", { onClick:()=>{ setMode("camera"); setScreen("camera"); }, className:"btn-primary", style:{ display:"flex", alignItems:"center", gap:12, justifyContent:"center" } }, iconCamera, "Use camera"),
+      React.createElement("button", { onClick:()=>{ setMode("upload"); setScreen("upload"); }, style:{ width:"100%", padding:"18px 20px", fontSize:15, fontWeight:600, borderRadius:12, background:"#fff", color:"#1a1a1a", border:"0.5px solid rgba(0,0,0,0.15)", cursor:"pointer", display:"flex", alignItems:"center", gap:12, justifyContent:"center" } }, iconUpload("#1a1a1a"), "Upload photo or video")
+    ),
+    React.createElement("div", { style:{ marginTop:20, padding:"14px 16px", background:"#fff8e6", border:"1px solid #ffd700", borderRadius:12, fontSize:13, color:"#7a5a00" } },
+      "💡 ", React.createElement("strong", null, "How it works:"), " Scan your room, then tick off each cleaning step. Each step earns ", React.createElement("strong", null, "+50 🪙 bells"), " you can spend in the 🎮 Decorate tab to furnish your dream room!"
+    )
+  );
+
+  // ── UPLOAD ──
+  if (screen === "upload") return React.createElement("div", null,
+    React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:10, marginBottom:20 } },
+      React.createElement("button", { onClick:goHome, className:"back-btn" }, "←"),
+      React.createElement("h2", { style:{ fontSize:18, fontWeight:600, color:"#1a1a1a" } }, "Upload file")
+    ),
+    React.createElement("div", {
+      className: "drop-zone" + (dragging ? " dragover" : ""),
+      onClick: ()=> fileInputRef.current && fileInputRef.current.click(),
+      onDragOver: (e)=>{ e.preventDefault(); setDragging(true); },
+      onDragLeave: ()=> setDragging(false),
+      onDrop: (e)=>{ e.preventDefault(); setDragging(false); const f=e.dataTransfer.files[0]; if(f) handleFile(f); }
+    },
+      React.createElement("input", { ref:fileInputRef, type:"file", accept:"image/*,video/*", onChange:(e)=>{ if(e.target.files[0]) handleFile(e.target.files[0]); } }),
+      React.createElement("svg", { width:44, height:44, viewBox:"0 0 24 24", fill:"none", stroke: dragging?"#174526":"#ccc", strokeWidth:1.5, strokeLinecap:"round", strokeLinejoin:"round", style:{ marginBottom:12 } },
+        React.createElement("rect", { x:3, y:3, width:18, height:18, rx:2 }),
+        React.createElement("circle", { cx:8.5, cy:8.5, r:1.5 }),
+        React.createElement("polyline", { points:"21 15 16 10 5 21" })
+      ),
+      React.createElement("p", { style:{ fontSize:15, fontWeight:500, color: dragging?"#174526":"#555", marginBottom:4 } }, dragging ? "Drop it here!" : "Click to browse or drag a file here"),
+      React.createElement("p", { style:{ fontSize:12, color:"#aaa", marginBottom:2 } }, "Photos: JPG, PNG, WEBP, HEIC"),
+      React.createElement("p", { style:{ fontSize:12, color:"#aaa" } }, "Videos: MP4, MOV, WEBM")
+    ),
+    React.createElement("div", { style:{ padding:"12px 14px", background:"#e8f0eb", borderRadius:8, fontSize:13, color:"#174526", marginBottom:12 } },
+      "Videos are analyzed by extracting 6 frames — no video is sent to the AI, just the frames."
+    ),
+    error && React.createElement("div", { className:"error-box" }, error)
+  );
+
+  // ── CAMERA ──
+  if (screen === "camera") return React.createElement("div", null,
+    React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:10, marginBottom:16 } },
+      React.createElement("button", { onClick:goHome, className:"back-btn" }, "←"),
+      React.createElement("h2", { style:{ fontSize:18, fontWeight:600, color:"#1a1a1a" } }, "Camera")
+    ),
+    React.createElement("div", { style:{ position:"relative", borderRadius:12, overflow:"hidden", background:"#e8e8e6", aspectRatio:"4/3", marginBottom:16 } },
+      React.createElement("video", { ref:videoRef, autoPlay:true, playsInline:true, muted:true, style:{ width:"100%", height:"100%", objectFit:"cover", display:"block" } }),
+      !cameraReady && React.createElement("div", { style:{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" } },
+        React.createElement("p", { style:{ color:"#888", fontSize:14 } }, "Starting camera..."))
+    ),
+    React.createElement("canvas", { ref:canvasRef, style:{ display:"none" } }),
+    error && React.createElement("div", { className:"error-box" }, error),
+    React.createElement("button", { onClick:captureFromCamera, disabled:!cameraReady, className:"btn-primary", style:{ background: cameraReady?"#174526":"#ccc", cursor: cameraReady?"pointer":"not-allowed" } }, "Scan room")
+  );
+
+  // ── SCANNING ──
+  if (screen === "scanning") return React.createElement("div", { style:{ textAlign:"center", padding:"40px 0" } },
+    capturedImage && React.createElement("div", { style:{ marginBottom:24, borderRadius:12, overflow:"hidden" } },
+      React.createElement("img", { src:capturedImage, alt:"Preview", style:{ width:"100%", display:"block" } })
+    ),
+    React.createElement("div", { style:{ display:"inline-block", width:32, height:32, border:"2px solid #e0e0e0", borderTop:"2px solid #174526", borderRadius:"50%", animation:"spin 0.8s linear infinite" } }),
+    React.createElement("p", { style:{ marginTop:16, fontSize:15, color:"#888", animation:"pulse 1.5s ease-in-out infinite" } }, scanningMsg),
+    videoFrames.length > 0 && React.createElement("p", { style:{ marginTop:8, fontSize:12, color:"#aaa" } }, videoFrames.length + " frames extracted from video")
+  );
+
+  // ── RESULTS ──
+  if (screen === "results" && analysis) return React.createElement("div", null,
+    React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:16 } },
+      React.createElement("div", null,
+        React.createElement("h2", { style:{ fontSize:18, fontWeight:600, color:"#1a1a1a" } }, "Cleaning plan"),
+        React.createElement("p", { style:{ fontSize:13, color:"#888", marginTop:2, lineHeight:1.4 } }, analysis.summary)
+      ),
+      React.createElement("div", { style:{ textAlign:"right", flexShrink:0, marginLeft:12 } },
+        React.createElement("div", { style:{ fontSize:13, fontWeight:600, color:"#174526" } }, points + " pts earned"),
+        streak > 0 && React.createElement("div", { style:{ fontSize:11, color:"#aaa" } }, streak + " streak")
+      )
+    ),
+
+    videoFrames.length > 1
+      ? React.createElement("div", { style:{ marginBottom:16 } },
+          React.createElement("p", { style:{ fontSize:12, color:"#aaa", fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.05em" } }, "Video frames analyzed"),
+          React.createElement("div", { style:{ display:"flex", gap:4, overflowX:"auto", paddingBottom:4 } },
+            videoFrames.map((f, i) =>
+              React.createElement("img", { key:i, src:f, onClick:()=>setCurrentFrame(i), style:{ height:60, borderRadius:6, border: i===currentFrame?"2px solid #174526":"2px solid transparent", cursor:"pointer", flexShrink:0, objectFit:"cover", width:80 } })
+            )
+          ),
+          React.createElement("img", { src:videoFrames[currentFrame], style:{ width:"100%", borderRadius:10, marginTop:8, display:"block" } })
+        )
+      : capturedImage && React.createElement("div", { style:{ marginBottom:16, borderRadius:12, overflow:"hidden", border:"0.5px solid rgba(0,0,0,0.1)" } },
+          React.createElement("img", { src:capturedImage, style:{ width:"100%", display:"block" } })
+        ),
+
+    detectedCategories.length > 0 && React.createElement("div", { style:{ marginBottom:16 } },
+      React.createElement("p", { style:{ fontSize:12, color:"#aaa", fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.05em" } }, "Detected"),
+      React.createElement("div", { style:{ display:"flex", flexWrap:"wrap", gap:6 } },
+        detectedCategories.map(cat => React.createElement("span", { key:cat.id, style:{ padding:"4px 10px", borderRadius:20, fontSize:12, fontWeight:600, background:cat.bg, color:cat.color } }, cat.label))
+      )
+    ),
+
+    React.createElement("div", { style:{ marginBottom:16 } },
+      React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", marginBottom:6 } },
+        React.createElement("p", { style:{ fontSize:12, color:"#aaa", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.05em" } }, "Progress"),
+        React.createElement("span", { style:{ fontSize:12, fontWeight:600, color: progress===100?"#3B6D11":"#174526" } }, progress + "%")
+      ),
+      React.createElement("div", { style:{ height:6, background:"#e8e8e6", borderRadius:3, overflow:"hidden" } },
+        React.createElement("div", { style:{ height:"100%", width:progress+"%", background: progress===100?"#639922":"#174526", borderRadius:3, transition:"width 0.3s ease" } })
+      )
+    ),
+
+    // BELLS EARNED BANNER
+    points > 0 && React.createElement("div", { className:"bells-earned-banner" },
+      React.createElement("span", null, "🪙 " + points + " bells earned so far!"),
+      React.createElement("button", { className:"go-game-btn", onClick:()=> switchScreen('game') }, "Spend in Game →")
+    ),
+
+    progress === 100 && React.createElement("div", { style:{ marginBottom:16, marginTop:10, padding:"12px 16px", background:"#EAF3DE", border:"0.5px solid #97C459", borderRadius:8, fontSize:14, color:"#27500A", fontWeight:600 } },
+      "Room complete! 🎉 You earned " + points + " bells" + (streak > 1 ? " — " + streak + "x streak!" : "!")
+    ),
+
+    React.createElement("div", { style:{ display:"flex", flexDirection:"column", gap:8, marginBottom:20 } },
+      analysis.steps.map((step, i) => {
+        const done = completedSteps.has(i);
+        return React.createElement("div", { key:i, onClick:()=>toggleStep(i), style:{ display:"flex", alignItems:"flex-start", gap:12, padding:"12px 14px", background: done?"#EAF3DE":"#ffffff", border:"0.5px solid "+(done?"#97C459":"rgba(0,0,0,0.1)"), borderRadius:10, cursor:"pointer" } },
+          React.createElement("div", { style:{ flexShrink:0, width:22, height:22, borderRadius:"50%", border:"1.5px solid "+(done?"#639922":"#ccc"), background: done?"#639922":"transparent", display:"flex", alignItems:"center", justifyContent:"center", marginTop:1 } },
+            done && React.createElement("svg", { width:12, height:12, viewBox:"0 0 12 12", fill:"none" }, React.createElement("path", { d:"M2 6l3 3 5-5", stroke:"white", strokeWidth:1.5, strokeLinecap:"round", strokeLinejoin:"round" }))
+          ),
+          React.createElement("div", { style:{ flex:1 } },
+            React.createElement("span", { style:{ fontSize:11, fontWeight:600, color: done?"#3B6D11":"#aaa", display:"block", marginBottom:2 } }, "Step " + (i+1)),
+            React.createElement("span", { style:{ fontSize:14, color: done?"#27500A":"#1a1a1a", textDecoration: done?"line-through":"none", lineHeight:1.4, display:"block" } }, step.replace(/^Step \d+:\s*/i,""))
+          ),
+          React.createElement("div", { style:{ flexShrink:0, fontSize:11, color: done?"#639922":"#174526", fontWeight:600 } }, done ? "✓ +50 🪙" : "+50 🪙")
+        );
+      })
+    ),
+
+    React.createElement("div", { style:{ display:"flex", gap:8 } },
+      React.createElement("button", { onClick:goHome, className:"btn-secondary", style:{ flex:1 } }, "Home"),
+      React.createElement("button", {
+        onClick:()=>{ setAnalysis(null); setCompletedSteps(new Set()); setCapturedImage(null); setVideoFrames([]); setCurrentFrame(0); setScreen(mode==="camera"?"camera":"upload"); if(mode==="camera") startCamera(); },
+        style:{ flex:1, padding:12, fontSize:14, fontWeight:600, borderRadius:12, background:"#174526", color:"#fff", border:"none", cursor:"pointer" }
+      }, "Scan again")
+    )
+  );
+
+  return null;
+}
+
+// Mount cleaner into its container
+const cleanerRoot = ReactDOM.createRoot(document.getElementById("cleaner-root"));
+cleanerRoot.render(React.createElement(RoomCleaner));
+</script>
+
+<script>
+const TILE = 40;
+const ROOM_W = 18;
+const ROOM_H = 13;
+const PLAYER_SPEED = 3;
+
+const SHOP_ITEMS = [
+  { id:'bed',    name:'Bed',        emoji:'🛏️', cost:80,  w:2, h:2, color:'#8B6B9E' },
+  { id:'desk',   name:'Desk',       emoji:'🖥️', cost:60,  w:2, h:1, color:'#6B8B6B' },
+  { id:'sofa',   name:'Sofa',       emoji:'🛋️', cost:90,  w:3, h:1, color:'#9E8B6B' },
+  { id:'plant',  name:'Plant',      emoji:'🪴', cost:30,  w:1, h:1, color:'#5A8B5A' },
+  { id:'lamp',   name:'Lamp',       emoji:'🪔', cost:25,  w:1, h:1, color:'#C4A44A' },
+  { id:'tv',     name:'TV',         emoji:'📺', cost:70,  w:2, h:1, color:'#4A6B8B' },
+  { id:'shelf',  name:'Bookshelf',  emoji:'📚', cost:45,  w:1, h:2, color:'#8B7A5A' },
+  { id:'piano',  name:'Piano',      emoji:'🎹', cost:150, w:2, h:1, color:'#3A3A4A' },
+  { id:'rug',    name:'Rug',        emoji:'🪆', cost:40,  w:3, h:2, color:'#9E5A5A' },
+  { id:'mirror', name:'Mirror',     emoji:'🪞', cost:35,  w:1, h:2, color:'#8BAABB' },
+  { id:'cat',    name:'Cat Bed',    emoji:'🐱', cost:50,  w:1, h:1, color:'#BB8A6A' },
+  { id:'flower', name:'Flowers',    emoji:'💐', cost:20,  w:1, h:1, color:'#BB6A9A' },
+];
+
+const gameState = {
+  coins: 0,  // starts at 0 — must be earned by cleaning!
+  inventory: {},
+  placed: [],
+  player: { x: 5*TILE, y: 5*TILE, dir: 0 },
+  keys: {},
+  mode: 'move',
+  activeItem: null,
+  selectedPlaced: null,
+  tab: 'shop',
+  showGrid: true,
+  placingPreview: { tx: 0, ty: 0 },
+  animFrame: 0,
+  walkAnim: 0,
+};
+
+let canvas, ctx, gameDiv;
+let offX = 0, offY = 0;
+
+function getItem(id) { return SHOP_ITEMS.find(i => i.id === id); }
+function computeOffset() { offX = Math.floor((canvas.width - ROOM_W*TILE)/2); offY = Math.floor((canvas.height - ROOM_H*TILE)/2); }
+function resize() { canvas.width = gameDiv.clientWidth; canvas.height = gameDiv.clientHeight; computeOffset(); }
+
+function isBlocked(px, py) {
+  const s = 22;
+  for (const p of gameState.placed) {
+    const itm = getItem(p.id);
+    const fx = p.tx*TILE, fy = p.ty*TILE;
+    if (px+s > fx+2 && px-s < fx+itm.w*TILE-2 && py+s > fy+2 && py-s < fy+itm.h*TILE-2) return true;
+  }
+  return false;
+}
+
+function canPlace(tx, ty, itm, skipIdx) {
+  if (tx < 0 || ty < 0 || tx+itm.w > ROOM_W || ty+itm.h > ROOM_H) return false;
+  for (let i = 0; i < gameState.placed.length; i++) {
+    if (i === skipIdx) continue;
+    const p = gameState.placed[i]; const pi = getItem(p.id);
+    if (tx < p.tx+pi.w && tx+itm.w > p.tx && ty < p.ty+pi.h && ty+itm.h > p.ty) return false;
+  }
+  return true;
+}
+
+function tileFromMouse(mx, my) { return { tx: Math.floor((mx-offX)/TILE), ty: Math.floor((my-offY)/TILE) }; }
+
+function update() {
+  if (gameState.mode !== 'move') return;
+  let dx = 0, dy = 0;
+  if (gameState.keys['ArrowLeft']  || gameState.keys['a'] || gameState.keys['A']) { dx = -PLAYER_SPEED; gameState.player.dir = 3; }
+  if (gameState.keys['ArrowRight'] || gameState.keys['d'] || gameState.keys['D']) { dx =  PLAYER_SPEED; gameState.player.dir = 1; }
+  if (gameState.keys['ArrowUp']    || gameState.keys['w'] || gameState.keys['W']) { dy = -PLAYER_SPEED; gameState.player.dir = 0; }
+  if (gameState.keys['ArrowDown']  || gameState.keys['s'] || gameState.keys['S']) { dy =  PLAYER_SPEED; gameState.player.dir = 2; }
+  if (dx || dy) gameState.walkAnim++;
+  const nx = Math.max(12, Math.min(ROOM_W*TILE-12, gameState.player.x+dx));
+  const ny = Math.max(12, Math.min(ROOM_H*TILE-12, gameState.player.y+dy));
+  if (dx && !isBlocked(nx, gameState.player.y)) gameState.player.x = nx;
+  if (dy && !isBlocked(gameState.player.x, ny)) gameState.player.y = ny;
+}
+
+function drawRoom() {
+  const W = canvas.width, H = canvas.height;
+  const rw = ROOM_W*TILE, rh = ROOM_H*TILE;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d2114'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#f5e6c8'; ctx.fillRect(offX, offY, rw, 60);
+  for (let x = 0; x < ROOM_W; x++) {
+    for (let y = 2; y < ROOM_H; y++) {
+      ctx.fillStyle = (x+y)%2===0 ? '#d4b87a' : '#c8a860';
+      ctx.fillRect(offX+x*TILE+1, offY+y*TILE+1, TILE-1, TILE-1);
+    }
+  }
+  ctx.fillStyle = '#b89650'; ctx.fillRect(offX, offY+TILE*2-4, rw, 5);
+  if (gameState.showGrid) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.09)'; ctx.lineWidth = 0.5;
+    for (let x = 0; x <= ROOM_W; x++) { ctx.beginPath(); ctx.moveTo(offX+x*TILE, offY); ctx.lineTo(offX+x*TILE, offY+rh); ctx.stroke(); }
+    for (let y = 0; y <= ROOM_H; y++) { ctx.beginPath(); ctx.moveTo(offX, offY+y*TILE); ctx.lineTo(offX+rw, offY+y*TILE); ctx.stroke(); }
+  }
+  ctx.strokeStyle = '#8B6B3A'; ctx.lineWidth = 3; ctx.strokeRect(offX, offY, rw, rh);
+  ctx.fillStyle = '#a8d4f0'; ctx.fillRect(offX+5*TILE, offY+6, TILE*2, TILE-10);
+  ctx.strokeStyle = '#6B8B5A'; ctx.lineWidth = 2; ctx.strokeRect(offX+5*TILE, offY+6, TILE*2, TILE-10);
+  ctx.beginPath(); ctx.moveTo(offX+6*TILE, offY+6); ctx.lineTo(offX+6*TILE, offY+TILE-4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(offX+5*TILE, offY+TILE/2); ctx.lineTo(offX+7*TILE, offY+TILE/2); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,100,120,0.5)';
+  ctx.fillRect(offX+5*TILE-8, offY+2, 10, TILE); ctx.fillRect(offX+7*TILE-2, offY+2, 10, TILE);
+  ctx.fillStyle = '#8B5A3A'; ctx.fillRect(offX+13*TILE, offY+rh-TILE-2, TILE*1.5, TILE+2);
+  ctx.strokeStyle = '#5A3A1A'; ctx.lineWidth = 2; ctx.strokeRect(offX+13*TILE, offY+rh-TILE-2, TILE*1.5, TILE+2);
+  ctx.fillStyle = '#d4a060'; ctx.beginPath(); ctx.arc(offX+14.2*TILE, offY+rh-TILE/2, 4, 0, Math.PI*2); ctx.fill();
+}
+
+function drawFurniture() {
+  const previewItem = (gameState.mode === 'place' && gameState.activeItem) ? getItem(gameState.activeItem) : null;
+  const { tx: ptx, ty: pty } = gameState.placingPreview;
+  for (let i = 0; i < gameState.placed.length; i++) {
+    const p = gameState.placed[i]; const itm = getItem(p.id);
+    const fx = offX+p.tx*TILE, fy = offY+p.ty*TILE, fw = itm.w*TILE, fh = itm.h*TILE;
+    ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(fx+3, fy+4, fw, fh);
+    ctx.fillStyle = itm.color; roundRect(fx, fy, fw, fh, 6); ctx.fill();
+    if (gameState.selectedPlaced === i) { ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; roundRect(fx-1, fy-1, fw+2, fh+2, 7); ctx.stroke(); }
+    ctx.font = `${Math.min(itm.w, itm.h)*20}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'white'; ctx.fillText(itm.emoji, fx+fw/2, fy+fh/2);
+  }
+  if (previewItem) {
+    const ok = canPlace(ptx, pty, previewItem, -1);
+    const fx = offX+ptx*TILE, fy = offY+pty*TILE, fw = previewItem.w*TILE, fh = previewItem.h*TILE;
+    ctx.fillStyle = ok ? 'rgba(80,200,120,0.35)' : 'rgba(200,80,80,0.35)'; roundRect(fx, fy, fw, fh, 6); ctx.fill();
+    ctx.strokeStyle = ok ? '#50c878' : '#c85050'; ctx.lineWidth = 2; roundRect(fx, fy, fw, fh, 6); ctx.stroke();
+    ctx.font = `${Math.min(previewItem.w, previewItem.h)*20}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.globalAlpha = 0.7; ctx.fillText(previewItem.emoji, fx+fw/2, fy+fh/2); ctx.globalAlpha = 1;
+  }
+}
+
+function drawPlayer() {
+  const px = offX + gameState.player.x, py = offY + gameState.player.y;
+  const walk = Math.sin(gameState.walkAnim * 0.3) * 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(px, py+14, 10, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ff9eb5'; roundRect(px-10, py-18+walk, 20, 24, 8); ctx.fill();
+  ctx.fillStyle = '#ffd0a0'; ctx.beginPath(); ctx.arc(px, py-22+walk, 12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#6a3a1a'; ctx.beginPath(); ctx.ellipse(px, py-31+walk, 11, 7, 0, Math.PI, Math.PI*2); ctx.fill();
+  if (gameState.player.dir !== 0) {
+    const eo = gameState.player.dir === 3 ? -3 : gameState.player.dir === 1 ? 3 : 0;
+    ctx.fillStyle = '#4a2a1a';
+    ctx.beginPath(); ctx.arc(px+eo-3, py-23+walk, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+eo+3, py-23+walk, 2, 0, Math.PI*2); ctx.fill();
+  }
+  const ls = Math.sin(gameState.walkAnim * 0.3) * 5;
+  ctx.fillStyle = '#6a5a9a';
+  ctx.fillRect(px-8, py+5+walk, 7, 10+ls); ctx.fillRect(px+1, py+5+walk, 7, 10-ls);
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function render() {
+  gameState.animFrame++;
+  update(); drawRoom(); drawFurniture(); drawPlayer();
+  requestAnimationFrame(render);
+}
+
+function switchTab(t) {
+  gameState.tab = t;
+  document.getElementById('shopTab').classList.toggle('active', t === 'shop');
+  document.getElementById('invTab').classList.toggle('active', t === 'inv');
+  renderGameUI();
+}
+
+function renderGameUI() {
+  document.getElementById('coinDisplay').textContent = gameState.coins;
+  // keep nav in sync
+  document.getElementById('navBells').textContent = gameState.coins;
+  const list = document.getElementById('itemList');
+  list.innerHTML = '';
+
+  if (gameState.tab === 'shop') {
+    SHOP_ITEMS.forEach(itm => {
+      const canAfford = gameState.coins >= itm.cost;
+      const card = document.createElement('div');
+      card.className = 'item-card' + (canAfford ? '' : ' disabled');
+      card.innerHTML = `<div class="item-emoji">${itm.emoji}</div><div class="item-info"><div class="item-name">${itm.name}</div><div class="item-cost">🪙 ${itm.cost}</div></div>`;
+      if (canAfford) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-buy'; btn.textContent = 'Buy';
+        btn.onclick = e => { e.stopPropagation(); buyItem(itm.id); };
+        card.appendChild(btn);
+      }
+      list.appendChild(card);
+    });
+  } else {
+    const entries = Object.entries(gameState.inventory).filter(([,v]) => v > 0);
+    if (!entries.length) {
+      list.innerHTML = '<div style="color:#608c73;font-size:12px;text-align:center;padding:20px;">Your bag is empty!<br>Buy items from the shop.</div>';
+    } else {
+      entries.forEach(([id, count]) => {
+        const itm = getItem(id);
+        const isActive = gameState.activeItem === id && gameState.mode === 'place';
+        const card = document.createElement('div');
+        card.className = 'item-card' + (isActive ? ' selected' : '');
+        card.innerHTML = `<div class="item-emoji">${itm.emoji}</div><div class="item-info"><div class="item-name">${itm.name}</div><div class="item-count">x${count}</div></div>`;
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-place'; btn.textContent = isActive ? '✓ Placing…' : 'Place';
+        btn.onclick = e => { e.stopPropagation(); startPlace(id); };
+        card.appendChild(btn);
+        list.appendChild(card);
+      });
+    }
+  }
+}
+
+function buyItem(id) {
+  const itm = getItem(id);
+  if (gameState.coins < itm.cost) return;
+  gameState.coins -= itm.cost;
+  gameState.inventory[id] = (gameState.inventory[id] || 0) + 1;
+  // sync back to shared bells
+  SharedBells.set(gameState.coins);
+  setGameStatus(`Bought ${itm.name}! Go to your bag to place it.`);
+  renderGameUI();
+}
+
+function startPlace(id) {
+  if (gameState.activeItem === id && gameState.mode === 'place') {
+    gameState.mode = 'move'; gameState.activeItem = null;
+  } else {
+    gameState.mode = 'place'; gameState.activeItem = id; gameState.selectedPlaced = null;
+    setGameStatus(`Click the room to place ${getItem(id).name}. Click bag item again to cancel.`);
+  }
+  renderGameUI();
+}
+
+function removePlaced(idx) {
+  const p = gameState.placed[idx];
+  gameState.inventory[p.id] = (gameState.inventory[p.id] || 0) + 1;
+  gameState.placed.splice(idx, 1); gameState.selectedPlaced = null;
+  setGameStatus(`Returned ${getItem(p.id).name} to bag.`); renderGameUI();
+}
+
+function toggleGrid() {
+  gameState.showGrid = !gameState.showGrid;
+  document.getElementById('gridBtn').classList.toggle('active', gameState.showGrid);
+}
+
+function saveRoom() {
+  localStorage.setItem('cozyRoom', JSON.stringify({ placed: gameState.placed, inventory: gameState.inventory, coins: gameState.coins }));
+  setGameStatus('Room saved! 💾');
+}
+
+function loadRoom() {
+  const raw = localStorage.getItem('cozyRoom');
+  if (!raw) { setGameStatus('No saved room found.'); return; }
+  const data = JSON.parse(raw);
+  gameState.placed    = data.placed    || [];
+  gameState.inventory = data.inventory || {};
+  // When loading, use whichever is higher: saved coins or earned bells
+  gameState.coins     = Math.max(data.coins || 0, SharedBells.get());
+  SharedBells.set(gameState.coins);
+  setGameStatus('Room loaded! 📂'); renderGameUI();
+}
+
+let statusTimer;
+function setGameStatus(msg) {
+  document.getElementById('statusBar').textContent = msg;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { document.getElementById('statusBar').textContent = 'Move with WASD • Buy in Shop • Place from Bag'; }, 3000);
+}
+
+// ── Boot ──
+window.addEventListener('load', () => {
+  canvas  = document.getElementById('gameCanvas');
+  ctx     = canvas.getContext('2d');
+  gameDiv = document.getElementById('gameArea');
+  resize();
+  window.addEventListener('resize', resize);
+  // sync initial bells (0 until cleaning starts)
+  gameState.coins = SharedBells.get();
+  renderGameUI();
+  render();
+  try { loadRoom(); } catch(e) {}
+});
+
+window.addEventListener('keydown', e => {
+  gameState.keys[e.key] = true;
+  if ((e.key === 'Delete' || e.key === 'Backspace') && gameState.selectedPlaced !== null) {
+    e.preventDefault(); removePlaced(gameState.selectedPlaced);
+  }
+  if (e.key === 'Escape') { gameState.mode = 'move'; gameState.activeItem = null; gameState.selectedPlaced = null; renderGameUI(); }
+});
+window.addEventListener('keyup', e => { gameState.keys[e.key] = false; });
+
+document.addEventListener('mousemove', e => {
+  if (!gameDiv) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  gameState.placingPreview = tileFromMouse(mx, my);
+});
+
+document.addEventListener('click', e => {
+  if (!gameDiv || !document.getElementById('screen-game').classList.contains('visible')) return;
+  const rect = canvas.getBoundingClientRect();
+  if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const { tx, ty } = tileFromMouse(mx, my);
+
+  if (gameState.mode === 'place' && gameState.activeItem) {
+    const itm = getItem(gameState.activeItem);
+    if (canPlace(tx, ty, itm, -1)) {
+      gameState.placed.push({ id: gameState.activeItem, tx, ty });
+      gameState.inventory[gameState.activeItem]--;
+      if (!gameState.inventory[gameState.activeItem]) { gameState.mode = 'move'; gameState.activeItem = null; }
+      setGameStatus(`Placed ${itm.name}! Click it to select & remove.`); renderGameUI();
+    } else { setGameStatus('Cannot place there — space is occupied or out of bounds.'); }
+    return;
+  }
+
+  let found = -1;
+  for (let i = gameState.placed.length-1; i >= 0; i--) {
+    const p = gameState.placed[i]; const itm = getItem(p.id);
+    const fx = offX+p.tx*TILE, fy = offY+p.ty*TILE;
+    if (mx >= fx && mx <= fx+itm.w*TILE && my >= fy && my <= fy+itm.h*TILE) { found = i; break; }
+  }
+  gameState.selectedPlaced = (found >= 0 && gameState.selectedPlaced !== found) ? found : null;
+  if (found >= 0 && gameState.selectedPlaced === found) {
+    setGameStatus(`Selected ${getItem(gameState.placed[found].id).name}. Press Delete/Backspace to remove.`);
+  }
+  renderGameUI();
+});
+</script>
+</body>
+</html>
