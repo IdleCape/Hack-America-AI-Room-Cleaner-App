@@ -15,11 +15,8 @@
     background: #dcf0e2; border-bottom: 2px solid #aed6bc;
     padding: 0 16px; height: 52px;
   }
-  #nav .nav-tabs {
-    position: absolute; left: 50%; transform: translateX(-50%);
-  }
   #nav .app-title { font-size: 15px; font-weight: 700; color: #c28b00; }
-  #nav .nav-tabs { display: flex; gap: 4px; }
+  #nav .nav-tabs { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; }
   #nav .nav-tab {
     padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
     cursor: pointer; border: none; background: transparent; color: #4a7a5d;
@@ -133,7 +130,7 @@
     <button class="nav-tab" id="tab-game" onclick="switchScreen('game')">🪑 Decorate</button>
   </div>
   <div class="bells-display" id="globalBells">
-    🪙 <span id="navBells">0</span>
+    🪙 <span id="coinDisplay">0</span>
     <span class="bells-label">bells</span>
   </div>
 </div>
@@ -144,10 +141,6 @@
 
 <div id="screen-game">
   <div id="sidebar">
-    <div class="panel" style="background:#c6e6d1;">
-      <div style="font-size:14px;font-weight:700;color:#c28b00;margin-bottom:4px;">🏡 Cozy Corner</div>
-      <div class="coins">🪙<span id="coinDisplay">0</span> <span style="color:#4a7a5d;font-size:11px;">bells</span></div>
-    </div>
     <div class="tabs">
       <button class="tab active" id="shopTab" onclick="switchTab('shop')">🛒 Shop</button>
       <button class="tab" id="invTab" onclick="switchTab('inv')">🎒 Bag</button>
@@ -159,7 +152,7 @@
     </div>
     <div class="help">
       WASD / Arrows: Move<br>
-      Click room: Place item<br>
+      Click room: Pslace item<br>
       Click placed: Select<br>
       Del / Backspace: Remove<br>
       Escape: Cancel
@@ -190,7 +183,7 @@ const SharedBells = {
   add(n) {
     this._bells += n;
     this._listeners.forEach(fn => fn(this._bells));
-    document.getElementById('navBells').textContent = this._bells;
+    document.getElementById('coinDisplay').textContent = this._bells;
     if (typeof gameState !== 'undefined') {
       gameState.coins = this._bells;
       if (typeof renderGameUI === 'function') renderGameUI();
@@ -200,12 +193,12 @@ const SharedBells = {
   set(n) {
     this._bells = n;
     this._listeners.forEach(fn => fn(this._bells));
-    document.getElementById('navBells').textContent = this._bells;
+    document.getElementById('coinDisplay').textContent = this._bells;
   },
   syncFromGame() {
     if (typeof gameState !== 'undefined') {
       this._bells = gameState.coins;
-      document.getElementById('navBells').textContent = this._bells;
+      document.getElementById('coinDisplay').textContent = this._bells;
     }
   },
   onUpdate(fn) { this._listeners.push(fn); }
@@ -777,8 +770,6 @@ function switchTab(t) {
 
 function renderGameUI() {
   document.getElementById('coinDisplay').textContent = gameState.coins;
-  // keep nav in sync
-  document.getElementById('navBells').textContent = gameState.coins;
   const list = document.getElementById('itemList');
   list.innerHTML = '';
 
