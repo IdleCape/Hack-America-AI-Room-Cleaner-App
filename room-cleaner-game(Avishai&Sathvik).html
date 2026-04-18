@@ -6,35 +6,35 @@
 <title>Clean & Decorate</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; min-height: 100vh; overflow: hidden; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eef7f1; min-height: 100vh; overflow: hidden; }
 
   /* ── NAV BAR ── */
   #nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
-    background: #1e0f3d; border-bottom: 2px solid #4a3080;
+    background: #dcf0e2; border-bottom: 2px solid #aed6bc;
     padding: 0 16px; height: 52px;
   }
-  #nav .app-title { font-size: 15px; font-weight: 700; color: #ffd700; }
+  #nav .app-title { font-size: 15px; font-weight: 700; color: #c28b00; }
   #nav .nav-tabs { display: flex; gap: 4px; }
   #nav .nav-tab {
     padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
-    cursor: pointer; border: none; background: transparent; color: #a890d0;
+    cursor: pointer; border: none; background: transparent; color: #4a7a5d;
     transition: all 0.2s;
   }
-  #nav .nav-tab.active { background: #3d2580; color: #e8d0ff; }
-  #nav .nav-tab:hover:not(.active) { color: #e8d0ff; }
+  #nav .nav-tab.active { background: #c6e6d1; color: #113d23; }
+  #nav .nav-tab:hover:not(.active) { color: #113d23; }
   #nav .bells-display {
     display: flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 700; color: #ffd700;
+    font-size: 14px; font-weight: 700; color: #c28b00;
   }
-  #nav .bells-display .bells-label { font-size: 11px; color: #a890d0; font-weight: 400; }
+  #nav .bells-display .bells-label { font-size: 11px; color: #4a7a5d; font-weight: 400; }
 
   /* earned bell flash */
   .bells-earned-toast {
     position: fixed; top: 60px; right: 16px; z-index: 200;
-    background: #1e4a2d; border: 1.5px solid #4a9e68; border-radius: 20px;
-    padding: 8px 16px; color: #a0ffcc; font-size: 13px; font-weight: 600;
+    background: #e6f2eb; border: 1.5px solid #aed6bc; border-radius: 20px;
+    padding: 8px 16px; color: #113d23; font-size: 13px; font-weight: 600;
     pointer-events: none;
     animation: toastIn 0.3s ease, toastOut 0.4s ease 2s forwards;
   }
@@ -52,7 +52,7 @@
 
   /* ── CLEANER STYLES ── */
   #screen-cleaner {
-    background: #f5f5f3;
+    background: #f4f9f5;
   }
   #cleaner-root {
     width: 100%; max-width: 480px; margin: 0 auto; padding: 16px;
@@ -64,78 +64,77 @@
     text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
     background: #fff; margin-bottom: 16px;
   }
-  .drop-zone.dragover { border-color: #185FA5; background: #E6F1FB; }
+  .drop-zone.dragover { border-color: #3b8c56; background: #e8f5ed; }
   .drop-zone input { display: none; }
-  .btn-primary { width:100%; padding:14px; font-size:15px; font-weight:600; border-radius:12px; background:#185FA5; color:#fff; border:none; cursor:pointer; }
-  .btn-secondary { width:100%; padding:12px; font-size:14px; border-radius:12px; background:transparent; color:#1a1a1a; border:0.5px solid rgba(0,0,0,0.2); cursor:pointer; }
+  .btn-primary { width:100%; padding:14px; font-size:15px; font-weight:600; border-radius:12px; background:#3b8c56; color:#fff; border:none; cursor:pointer; }
+  .btn-secondary { width:100%; padding:12px; font-size:14px; border-radius:12px; background:transparent; color:#113d23; border:0.5px solid rgba(0,0,0,0.2); cursor:pointer; }
   .back-btn { background:none; border:none; cursor:pointer; font-size:20px; color:#888; padding:0; line-height:1; }
   .error-box { margin-bottom:12px; padding:10px 14px; background:#FCEBEB; border:0.5px solid #F09595; border-radius:8px; font-size:13px; color:#791F1F; }
 
   /* earn bells banner in cleaner */
   .bells-earned-banner {
     margin-top: 12px; padding: 10px 14px;
-    background: #1e4a2d; border: 1px solid #4a9e68; border-radius: 10px;
-    font-size: 13px; color: #a0ffcc; font-weight: 600;
+    background: #e6f2eb; border: 1px solid #aed6bc; border-radius: 10px;
+    font-size: 13px; color: #113d23; font-weight: 600;
     display: flex; align-items: center; justify-content: space-between;
   }
   .go-game-btn {
-    padding: 6px 14px; background: #3d8a5f; color: #a0ffcc;
+    padding: 6px 14px; background: #3b8c56; color: #fff;
     border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
   }
-  .go-game-btn:hover { background: #4d9a6f; }
+  .go-game-btn:hover { background: #2c7042; }
 
   /* ── GAME STYLES ── */
-  #screen-game { background: #1a1a2e; }
+  #screen-game { background: #eef7f1; }
   #sidebar {
-    width: 220px; min-width: 220px; background: #2d1b69;
-    border-right: 2px solid #4a3080; display: flex; flex-direction: column; overflow: hidden;
+    width: 220px; min-width: 220px; background: #dcf0e2;
+    border-right: 2px solid #aed6bc; display: flex; flex-direction: column; overflow: hidden;
   }
   #gameArea { flex: 1; position: relative; overflow: hidden; cursor: crosshair; }
   #gameCanvas { display: block; }
-  .panel { padding: 10px; border-bottom: 1px solid #4a3080; }
-  .panel h3 { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #a890d0; margin-bottom: 8px; }
-  .coins { display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 700; color: #ffd700; }
+  .panel { padding: 10px; border-bottom: 1px solid #aed6bc; }
+  .panel h3 { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #4a7a5d; margin-bottom: 8px; }
+  .coins { display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 700; color: #c28b00; }
   .coins span { font-size: 13px; }
-  .tabs { display: flex; border-bottom: 2px solid #4a3080; }
-  .tab { flex: 1; padding: 8px 4px; font-size: 11px; text-align: center; cursor: pointer; color: #a890d0; border: none; background: transparent; letter-spacing: 0.5px; transition: all 0.15s; }
-  .tab.active { background: #3d2580; color: #e8d0ff; border-bottom: 2px solid #c890ff; margin-bottom: -2px; }
+  .tabs { display: flex; border-bottom: 2px solid #aed6bc; }
+  .tab { flex: 1; padding: 8px 4px; font-size: 11px; text-align: center; cursor: pointer; color: #4a7a5d; border: none; background: transparent; letter-spacing: 0.5px; transition: all 0.15s; }
+  .tab.active { background: #c6e6d1; color: #113d23; border-bottom: 2px solid #3b8c56; margin-bottom: -2px; }
   .item-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
   .item-list::-webkit-scrollbar { width: 4px; }
-  .item-list::-webkit-scrollbar-thumb { background: #4a3080; border-radius: 2px; }
-  .item-card { background: #3d2580; border: 1px solid #5a40a0; border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .item-card:hover { background: #4d3590; border-color: #c890ff; transform: translateX(2px); }
-  .item-card.selected { background: #5a3a9e; border-color: #ffd700; box-shadow: 0 0 0 1px #ffd700; }
+  .item-list::-webkit-scrollbar-thumb { background: #aed6bc; border-radius: 2px; }
+  .item-card { background: #e8f5ed; border: 1px solid #aed6bc; border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .item-card:hover { background: #c6e6d1; border-color: #3b8c56; transform: translateX(2px); }
+  .item-card.selected { background: #b3dabb; border-color: #c28b00; box-shadow: 0 0 0 1px #c28b00; }
   .item-card.disabled { opacity: 0.4; cursor: not-allowed; }
   .item-emoji { font-size: 22px; width: 32px; text-align: center; }
   .item-info { flex: 1; }
-  .item-name { font-size: 12px; font-weight: 600; color: #e8d0ff; }
-  .item-cost { font-size: 11px; color: #ffd700; }
-  .item-count { font-size: 10px; color: #a890d0; }
+  .item-name { font-size: 12px; font-weight: 600; color: #113d23; }
+  .item-cost { font-size: 11px; color: #c28b00; }
+  .item-count { font-size: 10px; color: #4a7a5d; }
   .btn { width: 100%; padding: 8px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-top: 4px; }
-  .btn-buy { background: #5a3a9e; color: #e8d0ff; }
-  .btn-buy:hover { background: #6a4aae; }
-  .btn-place { background: #2d7a4f; color: #a0ffcc; }
-  .btn-place:hover { background: #3d8a5f; }
-  .status-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(45,27,105,0.9); border: 1px solid #4a3080; border-radius: 20px; padding: 6px 16px; font-size: 12px; color: #c890ff; pointer-events: none; white-space: nowrap; z-index: 10; }
+  .btn-buy { background: #3b8c56; color: #fff; }
+  .btn-buy:hover { background: #2c7042; }
+  .btn-place { background: #3b8c56; color: #fff; }
+  .btn-place:hover { background: #2c7042; }
+  .status-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(232,245,237,0.9); border: 1px solid #aed6bc; border-radius: 20px; padding: 6px 16px; font-size: 12px; color: #113d23; pointer-events: none; white-space: nowrap; z-index: 10; }
   .toolbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
-  .tool-btn { background: rgba(45,27,105,0.9); border: 1px solid #4a3080; border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #c890ff; cursor: pointer; transition: all 0.15s; }
-  .tool-btn:hover { border-color: #c890ff; color: #e8d0ff; }
-  .tool-btn.active { background: rgba(90,58,158,0.9); border-color: #ffd700; color: #ffd700; }
+  .tool-btn { background: rgba(232,245,237,0.9); border: 1px solid #aed6bc; border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #4a7a5d; cursor: pointer; transition: all 0.15s; }
+  .tool-btn:hover { border-color: #3b8c56; color: #113d23; }
+  .tool-btn.active { background: rgba(198,230,209,0.9); border-color: #c28b00; color: #c28b00; }
   #earnBtn { background: rgba(45,80,40,0.9); border-color: #3d8a5f; color: #a0ffcc; }
   #earnBtn:hover { border-color: #a0ffcc; }
-  .help { font-size: 10px; color: #6a5090; text-align: center; padding: 8px; line-height: 1.6; border-top: 1px solid #4a3080; }
+  .help { font-size: 10px; color: #648f74; text-align: center; padding: 8px; line-height: 1.6; border-top: 1px solid #aed6bc; }
 
   /* clean-to-earn hint in game sidebar */
   .clean-hint {
-    padding: 8px 10px; font-size: 10px; color: #7a6aaa; text-align: center;
-    border-top: 1px solid #4a3080; line-height: 1.5;
+    padding: 8px 10px; font-size: 10px; color: #648f74; text-align: center;
+    border-top: 1px solid #aed6bc; line-height: 1.5;
   }
-  .clean-hint strong { color: #a890d0; }
+  .clean-hint strong { color: #4a7a5d; }
 </style>
 </head>
 <body>
 
-<!-- ── GLOBAL NAV ── -->
 <div id="nav">
   <div class="app-title">🏡 Clean & Decorate</div>
   <div class="nav-tabs">
@@ -148,17 +147,15 @@
   </div>
 </div>
 
-<!-- ── CLEANER SCREEN ── -->
 <div id="screen-cleaner" class="visible">
   <div id="cleaner-root"></div>
 </div>
 
-<!-- ── GAME SCREEN ── -->
 <div id="screen-game">
   <div id="sidebar">
-    <div class="panel" style="background:#1e0f3d;">
-      <div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:4px;">🏡 Cozy Corner</div>
-      <div class="coins">🪙<span id="coinDisplay">0</span> <span style="color:#a890d0;font-size:11px;">bells</span></div>
+    <div class="panel" style="background:#c6e6d1;">
+      <div style="font-size:14px;font-weight:700;color:#c28b00;margin-bottom:4px;">🏡 Cozy Corner</div>
+      <div class="coins">🪙<span id="coinDisplay">0</span> <span style="color:#4a7a5d;font-size:11px;">bells</span></div>
     </div>
     <div class="tabs">
       <button class="tab active" id="shopTab" onclick="switchTab('shop')">🛒 Shop</button>
@@ -188,7 +185,6 @@
   </div>
 </div>
 
-<!-- ── REACT (Cleaner) ── -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
@@ -475,15 +471,15 @@ function RoomCleaner() {
       React.createElement("h2", { style:{ fontSize:20, fontWeight:600, color:"#1a1a1a" } }, "Room Cleaner"),
       React.createElement("p", { style:{ fontSize:13, color:"#888", marginTop:4 } }, "Scan your room — every cleaning step earns 🪙 bells to spend in the Decorate game!"),
       SharedBells.get() > 0 && React.createElement("div", { style:{ marginTop:8, display:"inline-flex", gap:12, alignItems:"center", padding:"6px 12px", background:"#E6F1FB", borderRadius:20 } },
-        React.createElement("span", { style:{ fontSize:13, fontWeight:600, color:"#185FA5" } }, SharedBells.get() + " bells"),
-        streak > 0 && React.createElement("span", { style:{ fontSize:12, color:"#378ADD" } }, streak + " room" + (streak!==1?"s":"") + " cleaned")
+        React.createElement("span", { style:{ fontSize:13, fontWeight:600, color:"#3b8c56" } }, SharedBells.get() + " bells"),
+        streak > 0 && React.createElement("span", { style:{ fontSize:12, color:"#2c7042" } }, streak + " room" + (streak!==1?"s":"") + " cleaned")
       )
     ),
     React.createElement("div", { style:{ display:"flex", flexDirection:"column", gap:12 } },
       React.createElement("button", { onClick:()=>{ setMode("camera"); setScreen("camera"); }, className:"btn-primary", style:{ display:"flex", alignItems:"center", gap:12, justifyContent:"center" } }, iconCamera, "Use camera"),
       React.createElement("button", { onClick:()=>{ setMode("upload"); setScreen("upload"); }, style:{ width:"100%", padding:"18px 20px", fontSize:15, fontWeight:600, borderRadius:12, background:"#fff", color:"#1a1a1a", border:"0.5px solid rgba(0,0,0,0.15)", cursor:"pointer", display:"flex", alignItems:"center", gap:12, justifyContent:"center" } }, iconUpload("#1a1a1a"), "Upload photo or video")
     ),
-    React.createElement("div", { style:{ marginTop:20, padding:"14px 16px", background:"#fff8e6", border:"1px solid #ffd700", borderRadius:12, fontSize:13, color:"#7a5a00" } },
+    React.createElement("div", { style:{ marginTop:20, padding:"14px 16px", background:"#fff8e6", border:"1px solid #c28b00", borderRadius:12, fontSize:13, color:"#7a5a00" } },
       "💡 ", React.createElement("strong", null, "How it works:"), " Scan your room, then tick off each cleaning step. Each step earns ", React.createElement("strong", null, "+50 🪙 bells"), " you can spend in the 🎮 Decorate tab to furnish your dream room!"
     )
   );
@@ -502,16 +498,16 @@ function RoomCleaner() {
       onDrop: (e)=>{ e.preventDefault(); setDragging(false); const f=e.dataTransfer.files[0]; if(f) handleFile(f); }
     },
       React.createElement("input", { ref:fileInputRef, type:"file", accept:"image/*,video/*", onChange:(e)=>{ if(e.target.files[0]) handleFile(e.target.files[0]); } }),
-      React.createElement("svg", { width:44, height:44, viewBox:"0 0 24 24", fill:"none", stroke: dragging?"#185FA5":"#ccc", strokeWidth:1.5, strokeLinecap:"round", strokeLinejoin:"round", style:{ marginBottom:12 } },
+      React.createElement("svg", { width:44, height:44, viewBox:"0 0 24 24", fill:"none", stroke: dragging?"#3b8c56":"#ccc", strokeWidth:1.5, strokeLinecap:"round", strokeLinejoin:"round", style:{ marginBottom:12 } },
         React.createElement("rect", { x:3, y:3, width:18, height:18, rx:2 }),
         React.createElement("circle", { cx:8.5, cy:8.5, r:1.5 }),
         React.createElement("polyline", { points:"21 15 16 10 5 21" })
       ),
-      React.createElement("p", { style:{ fontSize:15, fontWeight:500, color: dragging?"#185FA5":"#555", marginBottom:4 } }, dragging ? "Drop it here!" : "Click to browse or drag a file here"),
+      React.createElement("p", { style:{ fontSize:15, fontWeight:500, color: dragging?"#3b8c56":"#555", marginBottom:4 } }, dragging ? "Drop it here!" : "Click to browse or drag a file here"),
       React.createElement("p", { style:{ fontSize:12, color:"#aaa", marginBottom:2 } }, "Photos: JPG, PNG, WEBP, HEIC"),
       React.createElement("p", { style:{ fontSize:12, color:"#aaa" } }, "Videos: MP4, MOV, WEBM")
     ),
-    React.createElement("div", { style:{ padding:"12px 14px", background:"#E6F1FB", borderRadius:8, fontSize:13, color:"#185FA5", marginBottom:12 } },
+    React.createElement("div", { style:{ padding:"12px 14px", background:"#e8f5ed", borderRadius:8, fontSize:13, color:"#3b8c56", marginBottom:12 } },
       "Videos are analyzed by extracting 6 frames — no video is sent to the AI, just the frames."
     ),
     error && React.createElement("div", { className:"error-box" }, error)
@@ -530,7 +526,7 @@ function RoomCleaner() {
     ),
     React.createElement("canvas", { ref:canvasRef, style:{ display:"none" } }),
     error && React.createElement("div", { className:"error-box" }, error),
-    React.createElement("button", { onClick:captureFromCamera, disabled:!cameraReady, className:"btn-primary", style:{ background: cameraReady?"#185FA5":"#ccc", cursor: cameraReady?"pointer":"not-allowed" } }, "Scan room")
+    React.createElement("button", { onClick:captureFromCamera, disabled:!cameraReady, className:"btn-primary", style:{ background: cameraReady?"#3b8c56":"#ccc", cursor: cameraReady?"pointer":"not-allowed" } }, "Scan room")
   );
 
   // ── SCANNING ──
@@ -538,7 +534,7 @@ function RoomCleaner() {
     capturedImage && React.createElement("div", { style:{ marginBottom:24, borderRadius:12, overflow:"hidden" } },
       React.createElement("img", { src:capturedImage, alt:"Preview", style:{ width:"100%", display:"block" } })
     ),
-    React.createElement("div", { style:{ display:"inline-block", width:32, height:32, border:"2px solid #e0e0e0", borderTop:"2px solid #185FA5", borderRadius:"50%", animation:"spin 0.8s linear infinite" } }),
+    React.createElement("div", { style:{ display:"inline-block", width:32, height:32, border:"2px solid #e0e0e0", borderTop:"2px solid #3b8c56", borderRadius:"50%", animation:"spin 0.8s linear infinite" } }),
     React.createElement("p", { style:{ marginTop:16, fontSize:15, color:"#888", animation:"pulse 1.5s ease-in-out infinite" } }, scanningMsg),
     videoFrames.length > 0 && React.createElement("p", { style:{ marginTop:8, fontSize:12, color:"#aaa" } }, videoFrames.length + " frames extracted from video")
   );
@@ -551,7 +547,7 @@ function RoomCleaner() {
         React.createElement("p", { style:{ fontSize:13, color:"#888", marginTop:2, lineHeight:1.4 } }, analysis.summary)
       ),
       React.createElement("div", { style:{ textAlign:"right", flexShrink:0, marginLeft:12 } },
-        React.createElement("div", { style:{ fontSize:13, fontWeight:600, color:"#185FA5" } }, points + " pts earned"),
+        React.createElement("div", { style:{ fontSize:13, fontWeight:600, color:"#3b8c56" } }, points + " pts earned"),
         streak > 0 && React.createElement("div", { style:{ fontSize:11, color:"#aaa" } }, streak + " streak")
       )
     ),
@@ -561,7 +557,7 @@ function RoomCleaner() {
           React.createElement("p", { style:{ fontSize:12, color:"#aaa", fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.05em" } }, "Video frames analyzed"),
           React.createElement("div", { style:{ display:"flex", gap:4, overflowX:"auto", paddingBottom:4 } },
             videoFrames.map((f, i) =>
-              React.createElement("img", { key:i, src:f, onClick:()=>setCurrentFrame(i), style:{ height:60, borderRadius:6, border: i===currentFrame?"2px solid #185FA5":"2px solid transparent", cursor:"pointer", flexShrink:0, objectFit:"cover", width:80 } })
+              React.createElement("img", { key:i, src:f, onClick:()=>setCurrentFrame(i), style:{ height:60, borderRadius:6, border: i===currentFrame?"2px solid #3b8c56":"2px solid transparent", cursor:"pointer", flexShrink:0, objectFit:"cover", width:80 } })
             )
           ),
           React.createElement("img", { src:videoFrames[currentFrame], style:{ width:"100%", borderRadius:10, marginTop:8, display:"block" } })
@@ -580,10 +576,10 @@ function RoomCleaner() {
     React.createElement("div", { style:{ marginBottom:16 } },
       React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", marginBottom:6 } },
         React.createElement("p", { style:{ fontSize:12, color:"#aaa", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.05em" } }, "Progress"),
-        React.createElement("span", { style:{ fontSize:12, fontWeight:600, color: progress===100?"#3B6D11":"#185FA5" } }, progress + "%")
+        React.createElement("span", { style:{ fontSize:12, fontWeight:600, color: progress===100?"#3B6D11":"#3b8c56" } }, progress + "%")
       ),
       React.createElement("div", { style:{ height:6, background:"#e8e8e6", borderRadius:3, overflow:"hidden" } },
-        React.createElement("div", { style:{ height:"100%", width:progress+"%", background: progress===100?"#639922":"#185FA5", borderRadius:3, transition:"width 0.3s ease" } })
+        React.createElement("div", { style:{ height:"100%", width:progress+"%", background: progress===100?"#639922":"#3b8c56", borderRadius:3, transition:"width 0.3s ease" } })
       )
     ),
 
@@ -608,7 +604,7 @@ function RoomCleaner() {
             React.createElement("span", { style:{ fontSize:11, fontWeight:600, color: done?"#3B6D11":"#aaa", display:"block", marginBottom:2 } }, "Step " + (i+1)),
             React.createElement("span", { style:{ fontSize:14, color: done?"#27500A":"#1a1a1a", textDecoration: done?"line-through":"none", lineHeight:1.4, display:"block" } }, step.replace(/^Step \d+:\s*/i,""))
           ),
-          React.createElement("div", { style:{ flexShrink:0, fontSize:11, color: done?"#639922":"#185FA5", fontWeight:600 } }, done ? "✓ +50 🪙" : "+50 🪙")
+          React.createElement("div", { style:{ flexShrink:0, fontSize:11, color: done?"#639922":"#3b8c56", fontWeight:600 } }, done ? "✓ +50 🪙" : "+50 🪙")
         );
       })
     ),
@@ -617,7 +613,7 @@ function RoomCleaner() {
       React.createElement("button", { onClick:goHome, className:"btn-secondary", style:{ flex:1 } }, "Home"),
       React.createElement("button", {
         onClick:()=>{ setAnalysis(null); setCompletedSteps(new Set()); setCapturedImage(null); setVideoFrames([]); setCurrentFrame(0); setScreen(mode==="camera"?"camera":"upload"); if(mode==="camera") startCamera(); },
-        style:{ flex:1, padding:12, fontSize:14, fontWeight:600, borderRadius:12, background:"#185FA5", color:"#fff", border:"none", cursor:"pointer" }
+        style:{ flex:1, padding:12, fontSize:14, fontWeight:600, borderRadius:12, background:"#3b8c56", color:"#fff", border:"none", cursor:"pointer" }
       }, "Scan again")
     )
   );
@@ -630,7 +626,6 @@ const cleanerRoot = ReactDOM.createRoot(document.getElementById("cleaner-root"))
 cleanerRoot.render(React.createElement(RoomCleaner));
 </script>
 
-<!-- ── COZY CORNER GAME ── -->
 <script>
 const TILE = 40;
 const ROOM_W = 18;
@@ -715,7 +710,7 @@ function drawRoom() {
   const W = canvas.width, H = canvas.height;
   const rw = ROOM_W*TILE, rh = ROOM_H*TILE;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#1a0f35'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#eef7f1'; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#f5e6c8'; ctx.fillRect(offX, offY, rw, 60);
   for (let x = 0; x < ROOM_W; x++) {
     for (let y = 2; y < ROOM_H; y++) {
@@ -749,7 +744,7 @@ function drawFurniture() {
     const fx = offX+p.tx*TILE, fy = offY+p.ty*TILE, fw = itm.w*TILE, fh = itm.h*TILE;
     ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(fx+3, fy+4, fw, fh);
     ctx.fillStyle = itm.color; roundRect(fx, fy, fw, fh, 6); ctx.fill();
-    if (gameState.selectedPlaced === i) { ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; roundRect(fx-1, fy-1, fw+2, fh+2, 7); ctx.stroke(); }
+    if (gameState.selectedPlaced === i) { ctx.strokeStyle = '#c28b00'; ctx.lineWidth = 2.5; roundRect(fx-1, fy-1, fw+2, fh+2, 7); ctx.stroke(); }
     ctx.font = `${Math.min(itm.w, itm.h)*20}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = 'white'; ctx.fillText(itm.emoji, fx+fw/2, fy+fh/2);
   }
@@ -827,7 +822,7 @@ function renderGameUI() {
   } else {
     const entries = Object.entries(gameState.inventory).filter(([,v]) => v > 0);
     if (!entries.length) {
-      list.innerHTML = '<div style="color:#6a5090;font-size:12px;text-align:center;padding:20px;">Your bag is empty!<br>Buy items from the shop.</div>';
+      list.innerHTML = '<div style="color:#648f74;font-size:12px;text-align:center;padding:20px;">Your bag is empty!<br>Buy items from the shop.</div>';
     } else {
       entries.forEach(([id, count]) => {
         const itm = getItem(id);
