@@ -3,11 +3,10 @@
 // ═══════════════════════════════════════════════
 const { useState, useRef, useEffect, useCallback } = React;
 
-require("dotenv").config();
 
-const API_KEY = process.env.nokey4u;
 
-console.log(apiKey);
+const API_KEY = key;
+
 
 const CLUTTER_CATEGORIES = [
   { id:"laundry",   label:"Laundry",        bg:"#B5D4F4", color:"#0C447C" },

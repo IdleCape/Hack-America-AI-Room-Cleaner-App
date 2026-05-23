@@ -1,24 +1,25 @@
 // ═══════════════════════════════════════════════
 // GAME — constants, state, shop, room, furniture, player
 // ═══════════════════════════════════════════════
-const TILE=40, ROOM_W=15, ROOM_H=12, PLAYER_SPEED=3;
+const TILE=40, ROOM_W=18, ROOM_H=15, PLAYER_SPEED=3;
 
 const SHOP_ITEMS = [
-  { id:'tv',       name:'TV',            cost:0,  w:1.5, h:1.5, color:'#8B6B9E' },
-  { id:'toilet',   name:'toilet',        cost:0,  w:1,   h:2, color:'#8B6B9E' },
-  { id:'sofa',     name:'Sofa',          cost:0,  w:2,   h:1, color:'#6B8B6B' },
-  { id:'sink',     name:'Sink',          cost:0,  w:0.5, h:0.5, color:'#C4A44A' },
-  { id:'shelf',    name:'Shelf',         cost:0,  w:1,   h:1.5, color:'#5A8B5A' },
-  { id:'plant',    name:'Plant',         cost:0,  w:0.5,   h:1, color:'#9E5A5A' },
-  { id:'piano',    name:'Piano',         cost:0,  w:2.5, h:2, color:'#9E8B6B' },
-  { id:'lamp',     name:'Lamp',          cost:0,  w:0.5, h:0.5, color:'#8B7A5A' },
-  { id:'fridge',   name:'Fridge',        cost:0,  w:1,   h:2, color:'#8BAABB' },
-  { id:'dresser',  name:'Dresser',       cost:0,  w:1,   h:2, color:'#8BAABB' },
-  { id:'dining',   name:'Dining',        cost:0,  w:4,   h:3, color:'#8BAABB' },
-  { id:'coffee',   name:'Coffee',        cost:0,  w:1,   h:1, color:'#8BAABB' },
-  { id:'chair',    name:'Chair',         cost:0,  w:1,   h:1, color:'#8BAABB' },
-  { id:'bed',      name:'Bed',           cost:0,  w:1.5, h:2, color:'#8BAABB' },
-  { id:'bathtub',  name:'Bathtub',       cost:0,  w:3,   h:2, color:'#8BAABB' },
+  { id:'tv',       name:'TV',            cost:25,  w:1, h:1, color:'#8B6B9E' },
+  { id:'toilet',   name:'toilet',        cost:30,  w:1,   h:2, color:'#8B6B9E' },
+  { id:'sofa',     name:'Sofa',          cost:25,  w:3,   h:1.5, color:'#6B8B6B' },
+  { id:'sink',     name:'Sink',          cost:15,  w:1.5, h:1.5, color:'#C4A44A' },
+  { id:'shelf',    name:'Shelf',         cost:25,  w:2,   h:3, color:'#5A8B5A' },
+  { id:'plant',    name:'Plant',         cost:10,  w:0.5,   h:1, color:'#9E5A5A' },
+  { id:'piano',    name:'Piano',         cost:40,  w:2.5, h:2, color:'#9E8B6B' },
+  { id:'lamp',     name:'Lamp',          cost:15,  w:1, h:1, color:'#8B7A5A' },
+  { id:'fridge',   name:'Fridge',        cost:40,  w:1,   h:2, color:'#8BAABB' },
+  { id:'dresser',  name:'Dresser',       cost:25,  w:1,   h:2, color:'#8BAABB' },
+  { id:'dining',   name:'Dining',        cost:35,  w:2,   h:4, color:'#8BAABB' },
+  { id:'coffee',   name:'Coffee',        cost:20,  w:1,   h:1, color:'#8BAABB' },
+  { id:'chair',    name:'Chair',         cost:15,  w:1,   h:1, color:'#8BAABB' },
+  { id:'bed',      name:'Bed',           cost:15,  w:1.5, h:2, color:'#8BAABB' },
+  { id:'bathtub',  name:'Bathtub',       cost:35,  w:3,   h:2, color:'#8BAABB' },
+  { id:'wall',     name:'Walls',         cost:1,  w:1,   h:1, color:'#363a3c' },
   
 ];
 
