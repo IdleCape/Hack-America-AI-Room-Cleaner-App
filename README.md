@@ -1,29 +1,11 @@
-# MessQuest Refactor Structure
+🏡 MessQuest AI
 
-## Files
+MessQuest AI is an AI-powered room cleaning assistant combined with a cozy decorating game inspired by Animal Crossing: New Horizons.
 
-- index.html
-  Main layout and script imports
+The app analyzes messy rooms using AI, generates cleaning tasks, and rewards users with in-game currency (“bells”) that can be used to decorate a virtual room.
 
-- styles.css
-  All CSS styles
 
-- js/shared.js
-  Shared UI logic and bell economy
+Setup
 
-- js/sprites.js
-  Embedded sprite/image data
-
-- js/cleaner.js
-  React room-cleaning application
-
-- js/game.js
-  Decoration game logic and rendering
-
-## Benefits
-
-- Easier navigation
-- Cleaner separation of concerns
-- Simpler debugging
-- Better scalability
-- Easier collaboration
+1. Download the Zip
+2. Run index.html in your browser
