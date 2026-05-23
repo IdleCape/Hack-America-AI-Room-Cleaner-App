@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MessQuest AI</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+
+  <!-- Main UI -->
+  <div id="nav">
+    <div class="app-title">🏡 MessQuest AI</div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-cleaner"
+        onclick="switchScreen('cleaner')">
+        🧹 Clean
+      </button>
+
+      <button class="nav-tab" id="tab-game"
+        onclick="switchScreen('game')">
+        🪑 Decorate
+      </button>
+    </div>
+
+    <div class="bells-display" id="globalBells">
+      🪙 <span id="coinDisplay">0</span>
+      <span class="bells-label">bells</span>
+    </div>
+  </div>
+
+  <div id="screen-cleaner" class="visible">
+    <div id="cleaner-root"></div>
+  </div>
+
+  <div id="screen-game">
+    <div id="sidebar">
+      <div class="tabs">
+        <button class="tab active" id="shopTab"
+          onclick="switchTab('shop')">
+          🛒 Shop
+        </button>
+
+        <button class="tab" id="invTab"
+          onclick="switchTab('inv')">
+          🎒 Bag
+        </button>
+      </div>
+
+      <div class="item-list" id="itemList"></div>
+    </div>
+
+    <div id="gameArea">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/shared.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/cleaner.js"></script>
+  <script src="js/game.js"></script>
+
+</body>
+</html>
